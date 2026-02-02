@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Analytics Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>📊 Reddit Analytics Dashboard</h1>
+            <button id="backBtn" class="btn-back">← Back to Popup</button>
+        </header>
+
+        <!-- Controls -->
+        <div class="dashboard-controls">
+            <select id="sessionSelect" class="select-session">
+                <option value="">Select a session...</option>
+            </select>
+            <button id="refreshBtn" class="btn-refresh">🔄 Refresh</button>
+            <button id="exportAllBtn" class="btn-export">📥 Export Session</button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Summary Cards -->
+            <section class="summary-cards">
+                <div class="summary-card">
+                    <div class="card-icon">📝</div>
+                    <div class="card-content">
+                        <div class="card-value" id="summaryTotalPosts">0</div>
+                        <div class="card-label">Total Posts</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="card-icon">👥</div>
+                    <div class="card-content">
+                        <div class="card-value" id="summaryUniqueUsers">0</div>
+                        <div class="card-label">Unique Users</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="card-icon">⬆️</div>
+                    <div class="card-content">
+                        <div class="card-value" id="summaryTotalUpvotes">0</div>
+                        <div class="card-label">Total Upvotes</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="card-icon">💬</div>
+                    <div class="card-content">
+                        <div class="card-value" id="summaryTotalComments">0</div>
+                        <div class="card-label">Total Comments</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <h3>Engagement Distribution</h3>
+                    <canvas id="engagementChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Top 5 Upvoted Posts</h3>
+                    <canvas id="topPostsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Comment Distribution</h3>
+                    <canvas id="commentsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Top 5 Most Active Users</h3>
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Detailed Posts Table -->
+            <section class="posts-section">
+                <h2>📋 Detailed Posts</h2>
+                <div class="table-controls">
+                    <input type="text" id="searchInput" class="search-box" placeholder="Search posts...">
+                    <select id="sortSelect" class="sort-select">
+                        <option value="date">Sort by: Date</option>
+                        <option value="upvotes">Sort by: Upvotes</option>
+                        <option value="comments">Sort by: Comments</option>
+                    </select>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="posts-table" id="postsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Upvotes</th>
+                                <th>Comments</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postsTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="emptyState" class="empty-state">
+                    <p>No posts data available. Go back and run a scrape first.</p>
+                </div>
+            </section>
+
+            <!-- User Statistics -->
+            <section class="users-section">
+                <h2>👥 User Statistics</h2>
+                <div class="users-grid" id="usersGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Metadata -->
+            <section class="metadata-section">
+                <h2>ℹ️ Session Information</h2>
+                <div class="metadata-grid">
+                    <div class="metadata-item">
+                        <label>Scrape Time:</label>
+                        <span id="metaScrapeTime">-</span>
+                    </div>
+                    <div class="metadata-item">
+                        <label>Page URL:</label>
+                        <span id="metaPageUrl">-</span>
+                    </div>
+                    <div class="metadata-item">
+                        <label>Subreddit:</label>
+                        <span id="metaSubreddit">-</span>
+                    </div>
+                    <div class="metadata-item">
+                        <label>Data Points:</label>
+                        <span id="metaDataPoints">0</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <p>Reddit Analytics Dashboard v1.0.0 | 
+               <a href="#" id="helpBtn">Help</a> | 
+               <a href="#" id="settingsBtn">Settings</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Reddit Analytics Scraper",
+  "version": "1.0.0",
+  "description": "Scrapes Reddit posts and generates analytics dashboard with engagement metrics",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.reddit.com/*",
+    "https://reddit.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Reddit Analytics Scraper"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.reddit.com/*",
+        "https://reddit.com/*"
+      ],
+      "js": [
+        "content-script-v3.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}

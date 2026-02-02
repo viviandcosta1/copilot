@@ -1,0 +1,15 @@
+# Ignore files and folders
+node_modules/
+.DS_Store
+.env
+.env.local
+*.log
+dist/
+build/
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+*~
+.next/
+out/
