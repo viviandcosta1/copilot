@@ -8,26 +8,49 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('[Scraper] Received:', request.action);
   
   if (request.action === 'scrapePostsPage') {
-    try {
-      const posts = scrapeAllPosts();
-      console.log(`[Scraper] Found ${posts.length} posts`);
-      sendResponse({
-        success: true,
-        posts: posts,
-        pageUrl: window.location.href,
-        subreddit: getSubreddit(),
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('[Scraper] Error:', error);
-      sendResponse({
-        success: false,
-        posts: [],
-        error: error.message
-      });
-    }
+    // If the sender requests an auto-scroll to load more posts first,
+    // perform that before extracting posts.
+    (async () => {
+      try {
+        if (request.includeScroll) {
+          await handleScroll();
+        }
+
+        const posts = scrapeAllPosts();
+        console.log(`[Scraper] Found ${posts.length} posts`);
+        sendResponse({
+          success: true,
+          posts: posts,
+          pageUrl: window.location.href,
+          subreddit: getSubreddit(),
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('[Scraper] Error:', error);
+        sendResponse({
+          success: false,
+          posts: [],
+          error: error.message
+        });
+      }
+    })();
+
+    return true; // indicate async response
   }
-  return true;
+
+  // Handle programmatic scrolling requests separately
+  if (request.action === 'handleScroll') {
+    (async () => {
+      try {
+        const result = await handleScroll(request.maxScrolls || 10, request.delay || 1200);
+        sendResponse({ success: true, result });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+
+    return true;
+  }
 });
 
 function scrapeAllPosts() {
@@ -165,5 +188,60 @@ function parseNum(str) {
 function getSubreddit() {
   const m = window.location.href.match(/\/r\/([a-z0-9_]+)/i);
   return m ? m[1] : 'unknown';
+}
+
+
+// Utility: wait for N milliseconds
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Scroll the page to load more posts. Repeats until no new posts appear
+ * or until maxScrolls is reached.
+ * @param {number} maxScrolls
+ * @param {number} delay - ms between scrolls
+ */
+async function handleScroll(maxScrolls = 10, delay = 1200) {
+  let lastCount = 0;
+  let sameCountRuns = 0;
+
+  for (let i = 0; i < maxScrolls; i++) {
+    // get current posts count using same strategy as scrapeAllPosts
+    let postElements = document.querySelectorAll('[data-testid="post-container"]');
+    if (!postElements || postElements.length === 0) {
+      postElements = document.querySelectorAll('article');
+    }
+    if (!postElements || postElements.length === 0) {
+      postElements = document.querySelectorAll('div[role="presentation"]');
+    }
+    if (!postElements || postElements.length === 0) {
+      postElements = document.querySelectorAll('div[class*="Post"], div[class*="post"]');
+    }
+
+    const currentCount = postElements.length || 0;
+    // If no change for 2 iterations, consider loaded
+    if (currentCount === lastCount) {
+      sameCountRuns += 1;
+    } else {
+      sameCountRuns = 0;
+    }
+
+    if (sameCountRuns >= 2) {
+      return { message: 'No more posts loading', postsLoaded: currentCount };
+    }
+
+    lastCount = currentCount;
+
+    // Scroll down
+    window.scrollBy({ top: window.innerHeight, left: 0, behavior: 'smooth' });
+    await sleep(delay);
+  }
+
+  // final count after scrolling
+  let finalPosts = document.querySelectorAll('[data-testid="post-container"]');
+  if (!finalPosts || finalPosts.length === 0) finalPosts = document.querySelectorAll('article');
+  const finalCount = finalPosts.length || 0;
+  return { message: 'Max scrolls reached', postsLoaded: finalCount };
 }
 

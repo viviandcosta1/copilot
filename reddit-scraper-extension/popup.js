@@ -80,9 +80,10 @@ async function handleScrapClick() {
     
     console.log('[Popup] Sending message to content script...');
     
-    // Send message to content script to scrape
+    // Send message to content script to scrape. Include scroll option.
     const response = await chrome.tabs.sendMessage(tab.id, {
-      action: 'scrapePostsPage'
+      action: 'scrapePostsPage',
+      includeScroll: includeScrollCheckbox && includeScrollCheckbox.checked
     });
     
     console.log('[Popup] Scrape response:', response);
